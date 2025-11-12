@@ -11,6 +11,7 @@ class MenuViewSet(viewsets.ModelViewSet):
     serializer_class = MenuSerializer
 
     def list(self, request, *args, **kwargs):
+        print(f'request.query_params: {request.query_params}')
         menu_name = request.query_params.get('menuName')
         status_value = request.query_params.get('status')
         qs = self.get_queryset()
@@ -45,6 +46,9 @@ class MenuViewSet(viewsets.ModelViewSet):
         instance.del_flag = '1'
         instance.save(update_fields=['del_flag'])
         return Response({"code": 200, "msg": "操作成功"})
+
+    def list2(self, request, *args, **kwargs):
+        self.list(request, *args, **kwargs)
 
     @action(detail=False, methods=['get'])
     def treeselect(self, request):

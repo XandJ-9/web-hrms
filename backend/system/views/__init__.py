@@ -3,11 +3,9 @@ from .core import (
 )
 from .user import UserViewSet
 from .menu import MenuViewSet
-from .dict import DictTypeListView, DictTypeDetailView, DictTypeCreateUpdateView,DictTypeRefreshCacheView, DictTypeOptionSelectView,DictDataListView, DictDataDetailView, DictDataByTypeView, DictDataCreateUpdateView
+from .dict import DictTypeViewSet, DictDataViewSet
 __all__ = [
     'CaptchaView', 'LoginView', 'GetInfoView', 'LogoutView', 'GetRoutersView',
-    'DictTypeListView', 'DictTypeDetailView', 'DictTypeCreateUpdateView',
-    'DictTypeRefreshCacheView', 'DictTypeOptionSelectView',
-    'DictDataListView', 'DictDataDetailView', 'DictDataByTypeView', 'DictDataCreateUpdateView',
+    'DictTypeViewSet', 'DictDataViewSet',
     'UserViewSet', 'MenuViewSet'
 ]

@@ -59,7 +59,10 @@ class GetInfoView(APIView):
             roles = [ur.role.role_key for ur in user_roles]
         except Exception:
             roles = []
-        permissions = []
+        if "admin" in roles:
+            permissions = ["*:*:*"]
+        else:
+            permissions = []
 
         resp = {
             'code': 200,
