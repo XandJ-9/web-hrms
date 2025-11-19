@@ -76,12 +76,13 @@ class UserSerializer(BaseSerializer):
     userId = serializers.IntegerField(source='id')
     userName = serializers.CharField(source='username', required=False)
     nickName = serializers.CharField(source='nick_name', required=False)
-    dept = serializers.SerializerMethodField()
+    # dept = serializers.SerializerMethodField()
+    deptId = serializers.IntegerField(source='dept_id')
     
     class Meta:
         model = User
         fields = ['userId', 'userName', 'nickName', 'phonenumber', 'email', 'sex', 'avatar', 'status', 
-                 'remark', 'dept_id', 'dept']
+                 'remark', 'deptId']
     
     def get_dept(self, obj):
         if obj.dept_id:

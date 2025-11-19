@@ -15,6 +15,7 @@ from ..serializers import (
 from ..models import User, Dept, Role, UserRole
 from ..serializers import UserSerializer, DeptSerializer, UserProfileSerializer, RoleSerializer
 
+from drf_spectacular.utils import extend_schema
 
 class UserViewSet(BaseViewSet):
     permission_classes = [IsAuthenticated, HasRolePermission]
@@ -158,6 +159,7 @@ class UserViewSet(BaseViewSet):
     
     @action(detail=False, methods=['put'], url_path=r'authRole')
     @audit_log
+    @extend_schema(request=AuthRoleAssignSerializer)
     def updateAuthRole(self, request):
         v = AuthRoleAssignSerializer(data=request.data)
         v.is_valid(raise_exception=True)
