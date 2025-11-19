@@ -23,7 +23,7 @@
 - `pyproject.toml`：项目元信息（显示 name = "backend", Python >= 3.12）
 - `requirements.txt`：列出后端运行时依赖（包括 Django 5.2.8、djangorestframework、asgiref、sqlparse、tzdata 等）
 - `db.sqlite3`（位于 backend 根或仓库根）
-- `hrms/`：Django 应用或项目目录（包含 `settings.py`, `urls.py`, `wsgi.py`, `asgi.py` 等）
+- `config/`：Django 应用或项目目录（包含 `settings.py`, `urls.py`, `wsgi.py`, `asgi.py` 等）
 - `system/`：Django app（包含 `models.py`, `views.py`, `serializers.py`, `urls.py` 等）
 - `migrations/`：数据库迁移文件
 
@@ -89,7 +89,7 @@
 - `backend/manage.py`：Django 管理命令入口（运行服务器、迁移等）
 - `backend/pyproject.toml`：项目元信息（Python 版本等）
 - `backend/requirements.txt`：后端依赖
-- `backend/hrms/`：Django 项目配置（settings, urls）
+- `backend/config/`：Django 项目配置（settings, urls）
 - `backend/system/`：业务 app（models/serializers/views）
 - `frontend/package.json`：前端依赖与脚本
 - `frontend/index.html`：前端入口 HTML（Vite dev server 会提供）
@@ -98,14 +98,14 @@
 ## 五、如何在本地运行（推荐的顺序）
 示例：在 Windows（cmd.exe）上
 1. 后端（Python/Django）
-   - cd d:\\svn\\xujia\\常用脚本\\code_store\\web-hrms\\backend
+   - cd d:\\svn\\xujia\\常用脚本\\code_store\\ruoyi-django\\backend
    - python -m venv .venv
    - .venv\Scripts\activate
    - pip install -r requirements.txt
    - python manage.py migrate
    - python manage.py runserver 0.0.0.0:8000
 2. 前端（Vite）
-   - cd d:\\svn\\xujia\\常用脚本\\code_store\\web-hrms\\frontend
+   - cd d:\\svn\\xujia\\常用脚本\\code_store\\ruoyi-django\\frontend
    - npm install
    - npm run dev
 3. 在开发阶段，前端通常会在默认端口（如 5173）运行，后端在 8000。根据前端配置，可能需要调整代理或环境变量以正确调用后端 API。
