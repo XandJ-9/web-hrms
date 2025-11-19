@@ -26,10 +26,12 @@ class RoleViewSet(BaseViewSet):
     update_body_id_field = 'roleId'
 
     def get_queryset(self):
-        s = RoleQuerySerializer(data=request.query_params)
+        # 使用父类的 queryset 作为基础，避免递归调用自身
+        qs = super().get_queryset()
+        # 列表查询使用 query_params（GET 查询参数），而不是 request.data
+        s = RoleQuerySerializer(data=self.request.query_params)
         s.is_valid(raise_exception=True)
         data = s.validated_data
-        qs = self.get_queryset()
 
         role_name = data.get('roleName')
         role_key = data.get('roleKey')
@@ -47,7 +49,7 @@ class RoleViewSet(BaseViewSet):
             qs = qs.filter(create_time__gte=begin_time)
         if end_time:
             qs = qs.filter(create_time__lte=end_time)
-        return qs
+        return qs.order_by('create_time')
 
     def create(self, request, *args, **kwargs):
         v = RoleCreateSerializer(data=request.data)

@@ -201,7 +201,9 @@ class BaseViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
-        return Response({'total': len(serializer.data), 'rows': serializer.data, 'code': 200, 'msg': '操作成功'})
+        # return Response({'total': len(serializer.data), 'rows': serializer.data, 'code': 200, 'msg': '操作成功'})
+        return self.raw_response({'total': len(serializer.data), 'rows': serializer.data, 'code': 200, 'msg': '操作成功'})
+
     @audit_log
     def create(self, request, *args, **kwargs):
         data = normalize_input(request.data)
@@ -276,7 +278,8 @@ class BaseViewSet(viewsets.ModelViewSet):
             else:
                 instance = Model.objects.get(pk=obj_id)
         except Model.DoesNotExist:
-            return Response({'code': 404, 'msg': '资源不存在'}, status=status.HTTP_404_NOT_FOUND)
+            # return Response({'code': 404, 'msg': '资源不存在'}, status=status.HTTP_404_NOT_FOUND)
+            return self.not_found(msg=f'资源不存在，id={obj_id}')
         kwargs['partial'] = False
         self.kwargs.update(kwargs)
         self.get_object = lambda: instance
