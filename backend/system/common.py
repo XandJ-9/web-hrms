@@ -7,7 +7,7 @@ def audit_log(func):
     def wrapper(self, request, *args, **kwargs):
         try:
             user = getattr(request, 'user', None)
-            logging.getLogger('audit').info(f"{getattr(user, 'username', 'anonymous')} {request.method} {request.path}")
+            logging.getLogger().info(f"{getattr(user, 'username', 'anonymous')} {request.method} {request.path}")
         except Exception:
             pass
         return func(self, request, *args, **kwargs)

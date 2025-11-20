@@ -5,8 +5,8 @@ from django.utils import timezone
 class BaseModel(models.Model):
     create_by = models.CharField(max_length=64, blank=True)
     update_by = models.CharField(max_length=64, blank=True)
-    create_time = models.DateTimeField(default=timezone.now)
-    update_time = models.DateTimeField(default=timezone.now)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
     del_flag = models.CharField(max_length=1, choices=[('0', '正常'), ('1', '删除')], default='0')
 
     class Meta:
@@ -86,7 +86,7 @@ class Role(BaseModel):
         return self.role_name
 
 
-class UserRole(models.Model):
+class UserRole(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='用户')
     role = models.ForeignKey(Role, on_delete=models.CASCADE, verbose_name='角色')
     
@@ -129,7 +129,7 @@ class Menu(BaseModel):
         return self.menu_name
 
 
-class RoleMenu(models.Model):
+class RoleMenu(BaseModel):
     role = models.ForeignKey(Role, on_delete=models.CASCADE, verbose_name='角色')
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, verbose_name='菜单')
 

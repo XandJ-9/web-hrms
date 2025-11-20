@@ -1,6 +1,9 @@
-from rest_framework.views import exception_handler
+from rest_framework.views import exception_handler,set_rollback
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models import ProtectedError, RestrictedError
+from django.db.utils import DatabaseError
+
 import traceback
 
 
@@ -43,6 +46,13 @@ def custom_exception_handler(exc, context):
         }
         # return response
         return Response(response.data, status=status.HTTP_200_OK)
-
+    elif isinstance(exc, (ProtectedError, RestrictedError)):
+        set_rollback()
+        msg = "无法删除:该条数据与其他数据有相关绑定"
+    elif isinstance(exc, DatabaseError):
+        set_rollback()
+        msg = "接口服务器异常,请联系管理员" + str(exc)
+    elif isinstance(exc, Exception):
+        msg = str(exc)
     # Non-DRF or unhandled exceptions → 500
-    return Response({'code': status.HTTP_500_INTERNAL_SERVER_ERROR, 'message': '服务器内部错误'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response({'code': status.HTTP_500_INTERNAL_SERVER_ERROR, 'message': msg}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

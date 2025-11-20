@@ -6,7 +6,6 @@ from .views import (
 )
 
 router = DefaultRouter()
-router.trailing_slash = '/?'
 router.register(r'user', UserViewSet, basename='user')
 router.register(r'menu', MenuViewSet, basename='menu')
 router.register(r'role', RoleViewSet, basename='role')
@@ -19,6 +18,7 @@ urlpatterns = [
     path('system/', include(router.urls)),
     # 兼容前端 PUT /system/menu（集合更新）
     path('system/menu', MenuViewSet.as_view({'put': 'update_by_body'}), name='menu-update-body'),
+    path('system/user', UserViewSet.as_view({'put': 'update_by_body'}), name='user-update-body'),
     # 兼容前端 PUT /system/role（集合更新）
     path('system/role', RoleViewSet.as_view({'put': 'update_by_body'}), name='role-update-body'),
     # 兼容前端 PUT /system/dept（集合更新）

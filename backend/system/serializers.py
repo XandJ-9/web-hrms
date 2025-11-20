@@ -14,7 +14,7 @@ class PaginationQuerySerializer(serializers.Serializer):
     pageNum = serializers.IntegerField(required=False, min_value=1, default=1)
     pageSize = serializers.IntegerField(required=False, min_value=1, default=10)
 
-class BaseSerializer(serializers.ModelSerializer):
+class BaseModelSerializer(serializers.ModelSerializer):
     """
     抽取各模型通用的审计/状态字段，统一命名为驼峰，以减少重复定义。
     字段在模型中不存在时，序列化为 None；写入时不强制要求。
@@ -41,39 +41,11 @@ class BaseSerializer(serializers.ModelSerializer):
                     merged.append(f)
             meta.fields = merged
 
+ 
+
 # User related
-class UserQuerySerializer(PaginationQuerySerializer):
-    userName = serializers.CharField(required=False, allow_blank=True)
-    phonenumber = serializers.CharField(required=False, allow_blank=True)
-    status = serializers.ChoiceField(required=False, choices=['0','1'])
-    deptId = serializers.IntegerField(required=False)
-    beginTime = serializers.DateTimeField(required=False)
-    endTime = serializers.DateTimeField(required=False)
-
-class ResetPwdSerializer(serializers.Serializer):
-    userId = serializers.IntegerField()
-    password = serializers.CharField(min_length=6, max_length=128)
-
-class ChangeStatusSerializer(serializers.Serializer):
-    userId = serializers.IntegerField()
-    status = serializers.ChoiceField(choices=['0','1'])
-
-class UpdatePwdSerializer(serializers.Serializer):
-    oldPassword = serializers.CharField(min_length=6, max_length=128)
-    newPassword = serializers.CharField(min_length=6, max_length=128)
-
-class AvatarSerializer(serializers.Serializer):
-    avatar = serializers.CharField()
-
-class AuthRoleAssignSerializer(serializers.Serializer):
-    userId = serializers.IntegerField()
-    roleIds = serializers.ListField(child=serializers.IntegerField(), allow_empty=True)
-
-class AuthRoleQuerySerializer(serializers.Serializer):
-    userId = serializers.IntegerField()
-
-class UserSerializer(BaseSerializer):
-    userId = serializers.IntegerField(source='id')
+class UserSerializer(BaseModelSerializer):
+    userId = serializers.IntegerField(source='id', required=False)
     userName = serializers.CharField(source='username', required=False)
     nickName = serializers.CharField(source='nick_name', required=False)
     # dept = serializers.SerializerMethodField()
@@ -84,19 +56,17 @@ class UserSerializer(BaseSerializer):
         fields = ['userId', 'userName', 'nickName', 'phonenumber', 'email', 'sex', 'avatar', 'status', 
                  'remark', 'deptId']
     
-    def get_dept(self, obj):
-        if obj.dept_id:
-            try:
-                dept = Dept.objects.get(dept_id=obj.dept_id)
-                return {
-                    'deptId': dept.dept_id,
-                    'deptName': dept.dept_name
-                }
-            except Dept.DoesNotExist:
-                return None
-        return None
 
-class UserProfileSerializer(BaseSerializer):
+
+class UserQuerySerializer(PaginationQuerySerializer):
+    userName = serializers.CharField(required=False, allow_blank=True)
+    phonenumber = serializers.CharField(required=False, allow_blank=True)
+    status = serializers.ChoiceField(required=False, choices=['0','1'])
+    deptId = serializers.IntegerField(required=False)
+    beginTime = serializers.DateTimeField(required=False)
+    endTime = serializers.DateTimeField(required=False)
+
+class UserProfileSerializer(serializers.Serializer):
     dept = serializers.SerializerMethodField()
     roleIds = serializers.SerializerMethodField()
     postIds = serializers.SerializerMethodField()
@@ -132,12 +102,46 @@ class UserInfoSerializer(serializers.Serializer):
     phonenumber = serializers.CharField()
     email = serializers.CharField()
     sex = serializers.CharField()
-    class Meta:
-        model = User
-        fields = ['userId', 'userName', 'nickName', 'avatar', 'phonenumber', 'email', 'sex']
+    dept = serializers.SerializerMethodField()
+
+    def get_dept(self, obj):
+        if obj.dept_id:
+            try:
+                dept = Dept.objects.get(dept_id=obj.dept_id)
+                return {
+                    'deptId': dept.dept_id,
+                    'deptName': dept.dept_name
+                }
+            except Dept.DoesNotExist:
+                return None
+        return None
+
+
+class ResetPwdSerializer(serializers.Serializer):
+    userId = serializers.IntegerField()
+    password = serializers.CharField(min_length=6, max_length=128)
+
+class ChangeStatusSerializer(serializers.Serializer):
+    userId = serializers.IntegerField()
+    status = serializers.ChoiceField(choices=['0','1'])
+
+class UpdatePwdSerializer(serializers.Serializer):
+    oldPassword = serializers.CharField(min_length=6, max_length=128)
+    newPassword = serializers.CharField(min_length=6, max_length=128)
+
+class AvatarSerializer(serializers.Serializer):
+    avatar = serializers.CharField()
+
+class AuthRoleAssignSerializer(serializers.Serializer):
+    userId = serializers.IntegerField()
+    roleIds = serializers.ListField(child=serializers.IntegerField(), allow_empty=True)
+
+class AuthRoleQuerySerializer(PaginationQuerySerializer):
+    userId = serializers.IntegerField()
+
 
 # Dept related
-class DeptSerializer(BaseSerializer):
+class DeptSerializer(BaseModelSerializer):
     deptId = serializers.IntegerField(source='dept_id')
     parentId = serializers.IntegerField(source='parent_id')
     deptName = serializers.CharField(source='dept_name')
@@ -147,7 +151,7 @@ class DeptSerializer(BaseSerializer):
         model = Dept
         fields = ['deptId', 'parentId', 'deptName', 'orderNum', 'leader', 'phone', 'email', 'status', 'remark']
 
-class DeptQuerySerializer(serializers.Serializer):
+class DeptQuerySerializer(PaginationQuerySerializer):
     deptName = serializers.CharField(required=False, allow_blank=True)
     status = serializers.ChoiceField(required=False, choices=['0','1'])
 
@@ -164,7 +168,7 @@ class DeptUpdateSerializer(DeptCreateSerializer):
     deptId = serializers.IntegerField()
 
 # Role related
-class RoleSerializer(BaseSerializer):
+class RoleSerializer(BaseModelSerializer):
     roleId = serializers.IntegerField(source='role_id', read_only=True)
     roleName = serializers.CharField(source='role_name')
     roleKey = serializers.CharField(source='role_key')
@@ -238,7 +242,7 @@ class MenuCreateSerializer(serializers.Serializer):
 class MenuUpdateSerializer(MenuCreateSerializer):
     menuId = serializers.IntegerField()
 
-class MenuSerializer(BaseSerializer):
+class MenuSerializer(BaseModelSerializer):
     menuId = serializers.IntegerField(source='menu_id', read_only=True)
     parentId = serializers.IntegerField(source='parent_id')
     menuName = serializers.CharField(source='menu_name')
@@ -264,7 +268,7 @@ class DictTypeQuerySerializer(PaginationQuerySerializer):
     dictType = serializers.CharField(required=False, allow_blank=True)
     status = serializers.ChoiceField(required=False, choices=['0','1'])
 
-class DictTypeSerializer(BaseSerializer):
+class DictTypeSerializer(BaseModelSerializer):
     dictId = serializers.IntegerField(source='dict_id', read_only=True)
     dictName = serializers.CharField(source='dict_name')
     dictType = serializers.CharField(source='dict_type')
@@ -279,7 +283,7 @@ class DictDataQuerySerializer(PaginationQuerySerializer):
     dictType = serializers.CharField(required=False, allow_blank=True)
     status = serializers.ChoiceField(required=False, choices=['0','1'])
 
-class DictDataSerializer(BaseSerializer):
+class DictDataSerializer(BaseModelSerializer):
     dictCode = serializers.IntegerField(source='dict_code', read_only=True)
     dictSort = serializers.IntegerField(source='dict_sort')
     dictLabel = serializers.CharField(source='dict_label')
@@ -300,7 +304,7 @@ class ConfigQuerySerializer(PaginationQuerySerializer):
     beginTime = serializers.DateTimeField(required=False)
     endTime = serializers.DateTimeField(required=False)
 
-class ConfigSerializer(BaseSerializer):
+class ConfigSerializer(BaseModelSerializer):
     configId = serializers.IntegerField(source='config_id', read_only=True)
     configName = serializers.CharField(source='config_name')
     configKey = serializers.CharField(source='config_key')

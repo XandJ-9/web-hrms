@@ -55,25 +55,8 @@ class RoleViewSet(BaseViewSet):
         v = RoleCreateSerializer(data=request.data)
         v.is_valid(raise_exception=True)
         vd = v.validated_data
-
         # 创建角色
-        role = Role(
-            role_name=vd.get('roleName'),
-            role_key=vd.get('roleKey'),
-            role_sort=vd.get('roleSort', 0),
-            status=vd.get('status', '0'),
-            remark=vd.get('remark', ''),
-            data_scope=vd.get('dataScope', '1'),
-            menu_check_strictly=1 if vd.get('menuCheckStrictly', True) else 0,
-            dept_check_strictly=1 if vd.get('deptCheckStrictly', True) else 0,
-        )
-
-        # 审计字段
-        user = getattr(self.request, 'user', None)
-        if user and getattr(user, 'username', None):
-            role.create_by = user.username
-            role.update_by = user.username
-        role.save()
+        role = self.perform_create(v)
 
         # 处理菜单关联
         menu_ids = vd.get('menuIds') or []

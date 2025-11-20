@@ -21,7 +21,7 @@ class UserViewSet(BaseViewSet):
     permission_classes = [IsAuthenticated, HasRolePermission]
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    
+    update_body_serializer_class = UserSerializer
     def get_queryset(self):
         queryset = User.objects.all()
         s = UserQuerySerializer(data=self.request.query_params)

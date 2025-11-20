@@ -14,7 +14,7 @@ from ..serializers import DictTypeSerializer, DictDataSerializer, UserProfileSer
 from django.db.models import Q
 from django.core.cache import cache
 from rest_framework.pagination import PageNumberPagination
-from ..common import audit_log, normalize_input
+from ..common import audit_log
 
 from drf_spectacular.utils import extend_schema
 
@@ -206,8 +206,7 @@ class BaseViewSet(viewsets.ModelViewSet):
 
     @audit_log
     def create(self, request, *args, **kwargs):
-        data = normalize_input(request.data)
-        serializer = self.get_serializer(data=data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return self.ok()
@@ -216,11 +215,25 @@ class BaseViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        data = normalize_input(request.data)
-        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return self.ok()
+
+    @audit_log
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if hasattr(instance, 'del_flag'):
+            instance.del_flag = '1'
+            instance.save(update_fields=['del_flag'])
+            return self.ok()
+        return super().destroy(request, *args, **kwargs)
+
+    # 统一数据详情响应包装
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = self.get_serializer(instance).data
+        return self.data(data)
 
     @audit_log
     def partial_update(self, request, *args, **kwargs):
@@ -243,24 +256,9 @@ class BaseViewSet(viewsets.ModelViewSet):
             kwargs['update_by'] = user.username
         serializer.save(**kwargs)
 
-    @audit_log
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        if hasattr(instance, 'del_flag'):
-            instance.del_flag = '1'
-            instance.save(update_fields=['del_flag'])
-            return self.ok()
-        return super().destroy(request, *args, **kwargs)
-
     @action(detail=False, methods=['get'],url_path='list')
     def model_list(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
-
-    # 统一数据详情响应包装
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        data = self.get_serializer(instance).data
-        return self.data(data)
 
     # 兼容前端 PUT /xxx（不带主键）更新：子类设置 update_body_serializer_class + update_body_id_field 即可复用
     def update_by_body(self, request, *args, **kwargs):

@@ -95,30 +95,24 @@
 - `frontend/index.html`：前端入口 HTML（Vite dev server 会提供）
 - `bin/*.bat`：项目提供的 Windows 批处理脚本（构建/运行等）
 
-## 五、如何在本地运行（推荐的顺序）
-示例：在 Windows（cmd.exe）上
+## 五、本地运行
+在 Windows（cmd.exe）上
 1. 后端（Python/Django）
-   - cd d:\\svn\\xujia\\常用脚本\\code_store\\ruoyi-django\\backend
+   - cd backend
    - python -m venv .venv
    - .venv\Scripts\activate
    - pip install -r requirements.txt
    - python manage.py migrate
    - python manage.py runserver 0.0.0.0:8000
 2. 前端（Vite）
-   - cd d:\\svn\\xujia\\常用脚本\\code_store\\ruoyi-django\\frontend
+   - cd frontend
    - npm install
    - npm run dev
 3. 在开发阶段，前端通常会在默认端口（如 5173）运行，后端在 8000。根据前端配置，可能需要调整代理或环境变量以正确调用后端 API。
 
 ## 六、注意事项与建议
 - 后端 `pyproject.toml` 声明 Python >=3.12，请使用匹配版本的 Python 环境。
-- 仓库包含 `db.sqlite3`：可能含示例/测试数据，注意不要在生产环境中直接使用。
-- `backend/README.md` 为空，建议补充启动、环境变量与默认管理员账号信息。
-- 前端基于 RuoYi：如需要自定义主题或组件，请查看 `src/` 目录中的 `components`、`plugins`、`views`。
-- 若需 docker 化或生产部署，建议新增 Dockerfile、docker-compose 或更详细的部署说明。
-- 如果你想我把本 Markdown 保存为文件（例如 `PROJECT_STRUCTURE.md` 或更新 `README.md`），我可以直接写入仓库并提交修改（仅在你确认保存位置和文件名后执行）。
-
-## 七、附：我从仓库读取到的关键片段（概要）
+- 前端基于 RuoYi，建议参考其官方文档以了解更多功能与配置选项。
 - `backend/pyproject.toml`：项目名 backend，requires-python = ">=3.12"
 - `backend/requirements.txt`：asgiref==3.10.0, Django==5.2.8, djangorestframework==3.16.1, sqlparse==0.5.3, tzdata==2025.2
 - `frontend/package.json`：Vue 3、Element Plus、Vite 等依赖；脚本：`dev`, `build:prod`, `build:stage`, `preview`
